@@ -25,6 +25,17 @@
       @click="saveProductData"
     />
     <br />
+    <br />
+
+    <DataTable
+      :value="productsList"
+      class="p-datatable-customers"
+      responsiveLayout="scroll"
+      showGridlines
+    >
+      <Column field="productName" header="Product"> </Column>
+      <Column field="productPrice" header="Price" dataType="numeric"> </Column>
+    </DataTable>
   </div>
 </template>
 
