@@ -19,7 +19,11 @@
       />
     </div>
 
-    <Button label="Adicionar" class="p-button-success" />
+    <Button
+      label="Adicionar"
+      class="p-button-success"
+      @click="saveProductData"
+    />
     <br />
   </div>
 </template>
@@ -34,7 +38,18 @@ export default {
     };
   },
   methods: {
-
+    saveProductData() {
+      if (this.productName !== "" && this.productPrice !== "") {
+        this.productsList.push({
+          productName: this.productName,
+          productPrice: this.productPrice
+        });
+        this.productName = "";
+        this.productPrice = null;
+      } else {
+        alert("Por favor, preencha os campos vazios!");
+      }
+    },
   }
 };
 </script>
