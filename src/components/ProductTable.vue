@@ -33,6 +33,7 @@
       responsiveLayout="scroll"
       showGridlines
       v-model:filters="filters1"
+      filterDisplay="menu"
     >
       <Column field="productName" header="Product">
         <template #body="{ data }">
@@ -48,7 +49,7 @@
       ></Column>
       <Column field="productPrice" header="Price" dataType="numeric">
         <template #body="{ data }">
-          {{ data.productPrice }}
+          {{ formatPrice(data.productPrice) }}
         </template>
         <template #filter="{ filterModel }">
           <InputNumber
@@ -89,6 +90,12 @@ export default {
       } else {
         alert("Por favor, preencha os campos vazios!");
       }
+    },
+    formatPrice(price) {
+      return price.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      });
     }
   }
 };
