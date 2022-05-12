@@ -1,14 +1,17 @@
 <template>
-  <div id="#app"></div>
+  <div id="#app">
+    <ProductTable />
+  </div>
 </template>
 
 <script>
+import ProductTable from "./components/ProductTable.vue";
 
 
 export default {
   name: 'App',
   components: {
-
+    ProductTable
   }
 }
 </script>
