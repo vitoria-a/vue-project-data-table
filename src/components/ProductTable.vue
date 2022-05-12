@@ -16,6 +16,8 @@
       <InputNumber
         placeholder="Enter the product price"
         v-model="productPrice"
+        :minFractionDigits="2"
+        :maxFractionDigits="5"
       />
     </div>
     <br />
@@ -32,7 +34,7 @@
       class="p-datatable-customers"
       responsiveLayout="scroll"
       showGridlines
-      v-model:filters="filters1"
+      v-model:filters="filters2"
       filterDisplay="menu"
     >
       <Column field="productName" header="Product">
@@ -75,8 +77,12 @@ export default {
       filters1: {
         'productName': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }] },
         'productPrice': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] }
-      }
+      },
+      filters2: null
     };
+  },
+  created() {
+    this.initFilters2();
   },
   methods: {
     saveProductData() {
@@ -96,6 +102,12 @@ export default {
         style: "currency",
         currency: "BRL"
       });
+    },
+    initFilters2() {
+      this.filters2 = {
+        'productName': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }] },
+        'productPrice': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] }
+      }
     }
   }
 };
