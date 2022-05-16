@@ -55,6 +55,8 @@
         </template>
         <template #filter="{ filterModel }">
           <InputNumber
+            :minFractionDigits="2"
+            :maxFractionDigits="5"
             v-model="filterModel.value"
             placeholder="Search by product price"
             mode="currency"
@@ -86,6 +88,9 @@ export default {
   },
   methods: {
     saveProductData() {
+      if (this.productPrice == 0) {
+        this.productPrice = 1;
+      }
       if (this.productName !== "" && this.productPrice !== "") {
         this.productsList.push({
           productName: this.productName,
