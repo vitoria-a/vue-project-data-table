@@ -29,6 +29,34 @@
     <br />
     <br />
 
+    <ConfirmPopup group="editProduct">
+      <template #message="slotProps">
+        <div class="pop-up-edit">
+          <p>{{ slotProps.message.titulo }}</p>
+          <InputText placeholder="Product Name" v-model="productNameToEdit" />
+          <InputNumber
+            :minFractionDigits="2"
+            :maxFractionDigits="5"
+            placeholder="Product Price"
+            v-model="productPriceToEdit"
+            currency="BRL"
+            mode="currency"
+            locale="pt-BR"
+          />
+        </div>
+      </template>
+    </ConfirmPopup>
+
+    <ConfirmPopup>
+      <template #message="slotProps">
+        <div class="pop-up-delete">
+          <p>{{ slotProps.message.titulo }}</p>
+        </div>
+      </template>
+    </ConfirmPopup>
+
+    <Toast />
+
     <DataTable
       :rows="10"
       :rowsPerPageOptions="[2, 5, 10]"
