@@ -11,15 +11,23 @@ import InputNumber from 'primevue/inputnumber';
 import Button from 'primevue/button';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
+import ConfirmationService from 'primevue/confirmationservice';
+import ConfirmPopup from 'primevue/confirmpopup';
+import ToastService from 'primevue/toastservice';
+import Toast from 'primevue/toast';
 
 const app = createApp(App);
 app.use(PrimeVue);
+app.use(ConfirmationService);
+app.use(ToastService);
 
 app.component('InputText', InputText);
 app.component('InputNumber', InputNumber);
 app.component('Button', Button);
 app.component('DataTable', DataTable);
 app.component('Column', Column);
+app.component('ConfirmPopup', ConfirmPopup);
+app.component('Toast', Toast);
 
 app.mount('#app');
 
