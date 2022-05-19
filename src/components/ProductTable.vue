@@ -205,6 +205,24 @@ export default {
         }
       });
     },
+    existsProductBeforeSave() {
+      var existsName = false;
+      this.productsList.forEach(product => {
+        if (this.formatName(this.productName) === this.formatName(product.productName)) {
+          existsName = true;
+        }
+      });
+      return existsName;
+    },
+    existsProductBeforeConfirmEdit() {
+      var existsName = false;
+      this.productsList.forEach(product => {
+        if (this.formatName(this.productNameToEdit) === this.formatName(product.productName)) {
+          existsName = true;
+        }
+      });
+      return existsName;
+    },
     formatPrice(price) {
       return price.toLocaleString("pt-BR", {
         style: "currency",
