@@ -140,6 +140,9 @@ export default {
   created() {
     this.initFilters();
   },
+  updated() {
+    console.log(this.productsList);
+  },
   methods: {
     saveProductData() {
       if (!this.productPrice || !this.productName) {
@@ -150,7 +153,7 @@ export default {
           life: 3000
         });
       } else {
-        if (this.existsProductBeforeSave()) {
+        if (this.existsProductBeforeSave(this.productName)) {
           this.$toast.add({
             severity: 'warn',
             summary: '',
@@ -159,7 +162,7 @@ export default {
           });
         } else {
           this.productsList.push({
-            productName: this.formatName(this.productName),
+            productName: this.formatName(),
             productPrice: this.productPrice
           });
           this.$toast.add({
@@ -243,10 +246,13 @@ export default {
       return existsName;
     },
     existsProductBeforeConfirmEdit() {
-      var existsName = false;
+      let existsName = false;
       this.productsList.forEach(product => {
         if (this.formatName(this.productNameToEdit) === this.formatName(product.productName)) {
           existsName = true;
+        }
+        if (this.productPrice != product.productPrice) {
+          existsName = false;
         }
       });
       return existsName;
