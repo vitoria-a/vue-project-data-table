@@ -6,7 +6,7 @@
         <i class="pi pi-box"></i>
       </span>
       <InputText
-        v-model.trim="productName"
+        v-model.trim="product.name"
         placeholder="Enter the product name"
       />
     </div>
@@ -15,16 +15,17 @@
       <span class="p-inputgroup-addon">$</span>
       <InputNumber
         :minFractionDigits="2"
-        :maxFractionDigits="5"
+        :maxFractionDigits="2"
         placeholder="Enter the product price"
-        v-model="productPrice"
+        v-model="product.price"
       />
     </div>
     <br />
     <Button
       label="Adicionar"
       class="p-button-success"
-      @click="saveProductData"
+      :disabled="hasProduct"
+      @click="save"
     />
     <br />
     <br />
@@ -33,12 +34,15 @@
       <template #message="slotProps">
         <div class="pop-up-edit">
           <p>{{ slotProps.message.titulo }}</p>
-          <InputText placeholder="Product Name" v-model="productNameToEdit" />
+          <InputText
+            placeholder="Product Name"
+            v-model="modifiedProduct.name"
+          />
           <InputNumber
             :minFractionDigits="2"
-            :maxFractionDigits="5"
+            :maxFractionDigits="2"
             placeholder="Product Price"
-            v-model="productPriceToEdit"
+            v-model="modifiedProduct.price"
             currency="BRL"
             mode="currency"
             locale="pt-BR"
@@ -59,9 +63,9 @@
 
     <DataTable
       :rows="10"
-      :rowsPerPageOptions="[2, 5, 10]"
+      :rowsPerPageOptions="[5, 10, 25]"
       :paginator="true"
-      :value="productsList"
+      :value="products"
       class="p-datatable-customers"
       currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
       filterDisplay="menu"
@@ -71,9 +75,22 @@
       showGridlines
       v-model:filters="filters"
     >
-      <Column :sortable="true" field="productName" header="Product">
+      <Column :sortable="true" field="id" header="ID">
         <template #body="{ data }">
-          {{ data.productName }}
+          {{ data.id }}
+        </template>
+        <template #filter="{ filterModel }">
+          <InputText
+            class="p-column-filter"
+            placeholder="Search by product ID"
+            type="text"
+            v-model="filterModel.value"
+          />
+        </template>
+      </Column>
+      <Column :sortable="true" field="name" header="Product">
+        <template #body="{ data }">
+          {{ data.name }}
         </template>
         <template #filter="{ filterModel }">
           <InputText
@@ -84,19 +101,14 @@
           />
         </template>
       </Column>
-      <Column
-        :sortable="true"
-        field="productPrice"
-        header="Price"
-        dataType="numeric"
-      >
+      <Column :sortable="true" field="price" header="Price" dataType="numeric">
         <template #body="{ data }">
-          {{ formatPrice(data.productPrice) }}
+          {{ formatCurrencyType(data.price) }}
         </template>
         <template #filter="{ filterModel }">
           <InputNumber
             :minFractionDigits="2"
-            :maxFractionDigits="5"
+            :maxFractionDigits="2"
             currency="BRL"
             v-model="filterModel.value"
             placeholder="Search by product price"
@@ -129,159 +141,111 @@ import { FilterMatchMode, FilterOperator } from 'primevue/api';
 export default {
   data() {
     return {
-      productName: "",
-      productPrice: 0,
-      productsList: [],
-      productNameToEdit: "",
-      productPriceToEdit: 0,
+      product: {
+        name: "",
+        price: 0
+      },
+      modifiedProduct: {
+        name: "",
+        price: 0
+      },
+      products: [],
       filters: null
     };
   },
   created() {
     this.initFilters();
   },
-  updated() {
-    console.log(this.productsList);
+  computed: {
+    hasProduct() {
+      let exists = true;
+      if (this.product.price && this.product.name) {
+        exists = false;
+      }
+      return exists;
+    }
   },
   methods: {
-    saveProductData() {
-      if (!this.productPrice || !this.productName) {
-        this.$toast.add({
-          severity: 'warn',
-          summary: '',
-          detail: 'Check empty fields!',
-          life: 3000
-        });
-      } else {
-        if (this.existsProductBeforeSave(this.productName)) {
-          this.$toast.add({
-            severity: 'warn',
-            summary: '',
-            detail: 'The product is already registered',
-            life: 3000
-          });
-        } else {
-          this.productsList.push({
-            productName: this.formatName(),
-            productPrice: this.productPrice
-          });
-          this.$toast.add({
-            severity: 'success',
-            summary: '',
-            detail: `${this.formatName(this.productName)} registered`,
-            life: 3000
-          });
-        }
-        this.productName = "";
-        this.productPrice = 0;
+    notification(severity, detail) {
+      this.$toast.add({ severity: severity, summary: '', detail: detail, life: 3000 });
+    },
+    generateID(list = []) {
+      let id = 0;
+      if (list || list.length > 0) {
+        list.forEach(content => id = content.id);
       }
+      return id + 1;
+    },
+    save() {
+      if (this.exists(this.product)) {
+        this.notification('warn', `The product ${this.toUpperCaseFirstLetter(this.product.name)} is already registered`);
+      } else {
+        this.products.push({
+          id: this.generateID(this.products),
+          name: this.toUpperCaseFirstLetter(this.product.name),
+          price: this.product.price
+        });
+        this.notification('success', `${this.toUpperCaseFirstLetter(this.product.name)} registered`);
+      }
+      this.product.name = "";
+      this.product.price = 0;
     },
     editProduct(event, product) {
-      this.productNameToEdit = product.productName;
-      this.productPriceToEdit = product.productPrice;
+      this.modifiedProduct = { ...product };
       this.$confirm.require({
         group: "editProduct",
         target: event.currentTarget,
         titulo: "Do you really want to edit?",
         accept: () => {
-          if (this.existsProductBeforeConfirmEdit()) {
-            this.$toast.add({
-              severity: 'warn',
-              summary: '',
-              detail: `The product ${this.formatName(this.productNameToEdit)} is already registered`,
-              life: 3000
-            });
+          if (this.exists(this.modifiedProduct, this.products)) {
+            this.notification('warn', `The product ${this.toUpperCaseFirstLetter(this.modifiedProduct.name)} is already registered`);
           } else {
-            product.productName = this.productNameToEdit;
-            product.productPrice = this.productPriceToEdit;
-            this.$toast.add({
-              severity: 'success',
-              summary: '',
-              detail: `${this.formatName(this.productNameToEdit)} updated`,
-              life: 3000
-            });
+            product.name = this.toUpperCaseFirstLetter(this.modifiedProduct.name);
+            product.price = this.modifiedProduct.price;
+            this.notification('success', `${this.toUpperCaseFirstLetter(this.modifiedProduct.name)} updated`);
           }
         },
         reject: () => {
-          this.$toast.add({
-            severity: 'info',
-            summary: '',
-            detail: `The product ${this.formatName(product.productName)} has not been updated`,
-            life: 3000
-          });
+          this.notification('info', `The product ${this.toUpperCaseFirstLetter(product.name)} has not been updated`);
         }
       });
     },
     deleteProduct(event, product) {
       this.$confirm.require({
         target: event.currentTarget,
-        titulo: "Do you really want to delete?",
+        titulo: `Do you really want to delete ${this.toUpperCaseFirstLetter(product.name)}?`,
         accept: () => {
-          var index = this.productsList.indexOf(product);
-          this.productsList.splice(index, 1);
-          this.$toast.add({
-            severity: 'success',
-            summary: '',
-            detail: `${this.formatName(product.productName)} excluded`,
-            life: 3000
-          });
+          let index = this.products.indexOf(product);
+          this.products.splice(index, 1);
+          this.notification('sucess', `${this.toUpperCaseFirstLetter(product.name)} excluded`);
         },
         reject: () => {
-          this.$toast.add({
-            severity: 'info',
-            summary: '',
-            detail: 'You have canceled',
-            life: 3000
-          });
+          this.notification('info', 'You have canceled');
         }
       });
     },
-    existsProductBeforeSave() {
-      var existsName = false;
-      this.productsList.forEach(product => {
-        if (this.formatName(this.productName) === this.formatName(product.productName)) {
-          existsName = true;
+    exists(product = {}, products = []) {
+      let exists = false;
+      products.forEach(content => {
+        if (product.id !== content.id) {
+          if (content.name.toLowerCase() === product.name.toLowerCase()) {
+            exists = true;
+          }
         }
       });
-      return existsName;
+      return exists;
     },
-    existsProductBeforeConfirmEdit() {
-      let existsName = false;
-      this.productsList.forEach(product => {
-        if (this.formatName(this.productNameToEdit) === this.formatName(product.productName)) {
-          existsName = true;
-        }
-        if (this.productPrice != product.productPrice) {
-          existsName = false;
-        }
-      });
-      return existsName;
+    formatCurrencyType(price) {
+      return price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
     },
-    formatPrice(price) {
-      return price.toLocaleString("pt-BR", {
-        style: "currency",
-        currency: "BRL"
-      });
-    },
-    formatName(name) {
+    toUpperCaseFirstLetter(name) {
       return name[0].toUpperCase() + name.substring(1).toLowerCase();
     },
     initFilters() {
       this.filters = {
-        'productName': {
-          operator: FilterOperator.AND,
-          constraints: [{
-            value: null,
-            matchMode: FilterMatchMode.CONTAINS
-          }]
-        },
-        'productPrice': {
-          operator: FilterOperator.AND,
-          constraints: [{
-            value: null,
-            matchMode: FilterMatchMode.EQUALS
-          }]
-        }
+        'id': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+        'name': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }] },
+        'price': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] }
       }
     }
   }
