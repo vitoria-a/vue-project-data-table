@@ -6,29 +6,29 @@
         <i class="pi pi-box"></i>
       </span>
       <InputText
-        v-model.trim="product.name"
         placeholder="Enter the product name"
+        v-model.trim="product.name"
       />
     </div>
 
     <div class="p-inputgroup">
       <span class="p-inputgroup-addon">$</span>
       <InputNumber
-        :minFractionDigits="2"
-        :maxFractionDigits="2"
         placeholder="Enter the product price"
         v-model="product.price"
+        :maxFractionDigits="2"
+        :minFractionDigits="2"
       />
     </div>
-    <br />
-    <Button
-      label="Adicionar"
-      class="p-button-success"
-      :disabled="hasProduct"
-      @click="save"
-    />
-    <br />
-    <br />
+
+    <div class="button">
+      <Button
+        class="p-button-success"
+        label="Adicionar"
+        :disabled="hasProduct"
+        @click="save"
+      />
+    </div>
 
     <ConfirmPopup group="editProduct">
       <template #message="slotProps">
@@ -39,19 +39,19 @@
             v-model="modifiedProduct.name"
           />
           <InputNumber
-            :minFractionDigits="2"
-            :maxFractionDigits="2"
+            currency="BRL"
+            locale="pt-BR"
+            mode="currency"
             placeholder="Product Price"
             v-model="modifiedProduct.price"
-            currency="BRL"
-            mode="currency"
-            locale="pt-BR"
+            :maxFractionDigits="2"
+            :minFractionDigits="2"
           />
         </div>
       </template>
     </ConfirmPopup>
 
-    <ConfirmPopup>
+    <ConfirmPopup group="deleteProduct">
       <template #message="slotProps">
         <div class="pop-up-delete">
           <p>{{ slotProps.message.titulo }}</p>
@@ -62,20 +62,20 @@
     <Toast />
 
     <DataTable
-      :rows="10"
-      :rowsPerPageOptions="[5, 10, 25]"
-      :paginator="true"
-      :value="products"
       class="p-datatable-customers"
       currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
       filterDisplay="menu"
+      paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
       removableSort
       responsiveLayout="scroll"
-      paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
       showGridlines
       v-model:filters="filters"
+      :paginator="true"
+      :rows="10"
+      :rowsPerPageOptions="[5, 10, 25]"
+      :value="products"
     >
-      <Column :sortable="true" field="id" header="ID">
+      <Column field="id" header="ID" :sortable="true">
         <template #body="{ data }">
           {{ data.id }}
         </template>
@@ -88,7 +88,7 @@
           />
         </template>
       </Column>
-      <Column :sortable="true" field="name" header="Product">
+      <Column field="name" header="Product" :sortable="true">
         <template #body="{ data }">
           {{ data.name }}
         </template>
@@ -101,32 +101,32 @@
           />
         </template>
       </Column>
-      <Column :sortable="true" field="price" header="Price" dataType="numeric">
+      <Column dataType="numeric" field="price" header="Price" :sortable="true">
         <template #body="{ data }">
           {{ formatCurrencyType(data.price) }}
         </template>
         <template #filter="{ filterModel }">
           <InputNumber
-            :minFractionDigits="2"
-            :maxFractionDigits="2"
             currency="BRL"
-            v-model="filterModel.value"
-            placeholder="Search by product price"
-            mode="currency"
             locale="pt-BR"
+            mode="currency"
+            placeholder="Search by product price"
+            v-model="filterModel.value"
+            :maxFractionDigits="2"
+            :minFractionDigits="2"
           />
         </template>
       </Column>
       <Column header="Actions">
         <template #body="slotProps">
           <Button
-            icon="pi pi-pencil"
             class="p-button p-button-success"
+            icon="pi pi-pencil"
             @click="editProduct($event, slotProps.data)"
           />
           <Button
-            icon="pi pi-trash"
             class="p-button p-button-danger"
+            icon="pi pi-trash"
             @click="deleteProduct($event, slotProps.data)"
           />
         </template>
@@ -141,16 +141,16 @@ import { FilterMatchMode, FilterOperator } from 'primevue/api';
 export default {
   data() {
     return {
-      product: {
-        name: "",
-        price: 0
-      },
+      filters: null,
       modifiedProduct: {
         name: "",
         price: 0
       },
-      products: [],
-      filters: null
+      product: {
+        name: "",
+        price: 0
+      },
+      products: []
     };
   },
   created() {
@@ -166,6 +166,13 @@ export default {
     }
   },
   methods: {
+    initFilters() {
+      this.filters = {
+        'id': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+        'name': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }] },
+        'price': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] }
+      }
+    },
     notification(severity, detail) {
       this.$toast.add({ severity: severity, summary: '', detail: detail, life: 3000 });
     },
@@ -177,7 +184,7 @@ export default {
       return id + 1;
     },
     save() {
-      if (this.exists(this.product)) {
+      if (this.exists(this.product, this.products)) {
         this.notification('warn', `The product ${this.toUpperCaseFirstLetter(this.product.name)} is already registered`);
       } else {
         this.products.push({
@@ -212,15 +219,16 @@ export default {
     },
     deleteProduct(event, product) {
       this.$confirm.require({
+        group: "deleteProduct",
         target: event.currentTarget,
         titulo: `Do you really want to delete ${this.toUpperCaseFirstLetter(product.name)}?`,
         accept: () => {
           let index = this.products.indexOf(product);
           this.products.splice(index, 1);
-          this.notification('sucess', `${this.toUpperCaseFirstLetter(product.name)} excluded`);
+          this.notification('success', `${this.toUpperCaseFirstLetter(product.name)} deleted`);
         },
         reject: () => {
-          this.notification('info', 'You have canceled');
+          this.notification('info', `The product ${this.toUpperCaseFirstLetter(product.name)} has not been deleted`);
         }
       });
     },
@@ -231,6 +239,7 @@ export default {
           if (content.name.toLowerCase() === product.name.toLowerCase()) {
             exists = true;
           }
+
         }
       });
       return exists;
@@ -240,13 +249,6 @@ export default {
     },
     toUpperCaseFirstLetter(name) {
       return name[0].toUpperCase() + name.substring(1).toLowerCase();
-    },
-    initFilters() {
-      this.filters = {
-        'id': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-        'name': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }] },
-        'price': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] }
-      }
     }
   }
 };
