@@ -1,3 +1,5 @@
+
+
 .product-management {
     margin: 3rem;
 
@@ -7,18 +9,19 @@
                 margin-bottom: 1.5rem;
             }
         }
-    
-        .p-button {
-            margin: 0.2rem;
-        }
-    
-        .pop-up-edit {
-            margin: 2rem;
-        }
-    
-        .pop-up-delete {
-            margin: 2rem;
-        }
+        
+    .p-button {
+        margin: 0.2rem;
+    }
     
 @import './product-table.scss';
+
+}
+
+.pop-up-edit {
+    margin: 2rem;
+}
+
+.pop-up-delete {
+    margin: 2rem;
 }
