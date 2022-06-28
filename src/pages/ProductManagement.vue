@@ -1,6 +1,6 @@
 <template>
   <div class="product-management">
-    <h3>Price Table</h3>
+    <h3>Product Table</h3>
     <div class="p-inputgroup">
       <span class="p-inputgroup-addon">
         <i class="pi pi-box"></i>
@@ -12,12 +12,12 @@
     </div>
 
     <div class="p-inputgroup">
-      <span class="p-inputgroup-addon">$</span>
-      <InputNumber
-        placeholder="Enter the product price"
-        v-model="product.price"
-        :maxFractionDigits="2"
-        :minFractionDigits="2"
+      <span class="p-inputgroup-addon">
+        <i class="pi pi-book"></i>
+      </span>
+      <InputText
+        placeholder="Enter the product description"
+        v-model="product.description"
       />
     </div>
 
@@ -38,14 +38,9 @@
             placeholder="Product Name"
             v-model="modifiedProduct.name"
           />
-          <InputNumber
-            currency="BRL"
-            locale="pt-BR"
-            mode="currency"
+          <InputText
             placeholder="Product Price"
-            v-model="modifiedProduct.price"
-            :maxFractionDigits="2"
-            :minFractionDigits="2"
+            v-model="modifiedProduct.description"
           />
         </div>
       </template>
@@ -61,7 +56,7 @@
 
     <Toast />
 
-    <ProductTable :products="products" :deleteProduct="deleteProduct" />
+    <ProductTable :products="products" :deleteProduct="deleteProduct" :editProduct="editProduct"/>
   </div>
 </template>
 
@@ -78,11 +73,12 @@ export default {
     return {
       modifiedProduct: {
         name: "",
-        price: 0
+        description: 0
       },
       product: {
+        id: null,
         name: "",
-        price: null
+        description: ""
       },
       products: []
     };
@@ -90,7 +86,7 @@ export default {
   computed: {
     hasProduct() {
       let exists = true;
-      if (this.product.name && this.product.price) {
+      if (this.product.name && this.product.description) {
         exists = false;
       }
       return exists;
@@ -114,12 +110,12 @@ export default {
         this.products.push({
           id: this.generateID(this.products),
           name: this.toUpperCaseFirstLetter(this.product.name),
-          price: this.product.price
+          description: this.product.description
         });
         this.notification('success', `${this.toUpperCaseFirstLetter(this.product.name)} registered`);
       }
       this.product.name = "";
-      this.product.price = null;
+      this.product.description = "";
     },
     editProduct(event, product) {
       this.modifiedProduct = { ...product };
@@ -132,7 +128,7 @@ export default {
             this.notification('warn', `The product ${this.toUpperCaseFirstLetter(this.modifiedProduct.name)} is already registered`);
           } else {
             product.name = this.toUpperCaseFirstLetter(this.modifiedProduct.name);
-            product.price = this.modifiedProduct.price;
+            product.description = this.modifiedProduct.description;
             this.notification('success', `${this.toUpperCaseFirstLetter(this.modifiedProduct.name)} updated`);
           }
         },
@@ -163,13 +159,9 @@ export default {
           if (content.name.toLowerCase() === product.name.toLowerCase()) {
             exists = true;
           }
-
         }
       });
       return exists;
-    },
-    formatCurrencyType(price) {
-      return price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
     },
     toUpperCaseFirstLetter(name) {
       return name[0].toUpperCase() + name.substring(1).toLowerCase();
