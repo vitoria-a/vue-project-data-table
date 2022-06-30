@@ -9,3 +9,7 @@ export function getAllProducts() {
 export function postProduct(product) {
     return axios.post(baseURL, product);
 }
+
+export function putProduct(id, product) {
+    return axios.put(baseURL + `/${id}`, product);
+}

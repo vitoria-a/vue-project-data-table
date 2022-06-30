@@ -63,7 +63,7 @@
 <script>
 
 import ProductTable from '../components/ProductTable.vue';
-import { getAllProducts, postProduct } from '../services/productService.js';
+import { getAllProducts, postProduct, putProduct } from '../services/productService.js';
 
 export default {
   name: 'ProductManagement',
@@ -122,13 +122,26 @@ export default {
         this.product.name = data.name;
         this.product.description = data.description;
 
-        this.notification('success', `${this.toUpperCaseFirstLetter(this.product.name)} registered`);
+        this.notification('success', `${this.product.name} registered`);
         this.requestGetAllProducts();
         this.clearInput();
-      } catch {
-        this.notification('warn', `The product ${this.toUpperCaseFirstLetter(this.product.name)} has not been registered`);
+      } catch (error) {
+        this.notification('info', `${error.response.data.errors}`);
       }
 
+    },
+    async requestPutProduct(productId, product) {
+      try {
+        const response = await putProduct(productId, product);
+        let data = response.data.data;
+        product.name = data.name;
+        product.description = data.description;
+
+        this.notification('success', `${product.name} updated`);
+        this.requestGetAllProducts();
+      } catch (error) {
+        this.notification('info', `${error.response.data.errors}`);
+      }
     },
     editProduct(event, product) {
       this.modifiedProduct = { ...product };
@@ -137,20 +150,14 @@ export default {
         target: event.currentTarget,
         titulo: "Do you really want to edit?",
         accept: () => {
-          if (this.exists(this.modifiedProduct, this.products)) {
-            this.notification('warn', `The product ${this.toUpperCaseFirstLetter(this.modifiedProduct.name)} is already registered`);
-          } else {
-            product.name = this.toUpperCaseFirstLetter(this.modifiedProduct.name);
-            product.description = this.modifiedProduct.description;
-            this.notification('success', `${this.toUpperCaseFirstLetter(this.modifiedProduct.name)} updated`);
-          }
+          this.requestPutProduct(this.modifiedProduct.id, this.modifiedProduct);
         },
         reject: () => {
-          this.notification('info', `The product ${this.toUpperCaseFirstLetter(product.name)} has not been updated`);
+          this.notification('info', `The product ${product.name} has not been updated`);
         }
       });
     },
-    deleteProduct(event, product) {
+    /* deleteProduct(event, product) {
       this.$confirm.require({
         group: "deleteProduct",
         target: event.currentTarget,
@@ -164,21 +171,7 @@ export default {
           this.notification('info', `The product ${this.toUpperCaseFirstLetter(product.name)} has not been deleted`);
         }
       });
-    },
-    exists(product = {}, products = []) {
-      let exists = false;
-      products.forEach(content => {
-        if (product.id !== content.id) {
-          if (content.name.toLowerCase() === product.name.toLowerCase()) {
-            exists = true;
-          }
-        }
-      });
-      return exists;
-    },
-    toUpperCaseFirstLetter(name) {
-      return name[0].toUpperCase() + name.substring(1).toLowerCase();
-    }
+    }, */
   }
 }
 </script>
