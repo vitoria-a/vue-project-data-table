@@ -63,6 +63,7 @@
 <script>
 
 import ProductTable from '../components/ProductTable.vue';
+import { getAllProducts } from '../services/productService.js';
 
 export default {
   name: 'ProductManagement',
@@ -72,8 +73,9 @@ export default {
   data() {
     return {
       modifiedProduct: {
+        id: null,
         name: "",
-        description: 0
+        description: ""
       },
       product: {
         id: null,
@@ -92,6 +94,9 @@ export default {
       return exists;
     }
   },
+  async mounted() {
+    await this.requestGetAllProducts();
+  },
   methods: {
     notification(severity, detail) {
       this.$toast.add({ severity: severity, summary: '', detail: detail, life: 3000 });
@@ -102,6 +107,15 @@ export default {
         list.forEach(content => id = content.id);
       }
       return id + 1;
+    },
+    async requestGetAllProducts() {
+      try {
+        const response = await getAllProducts();
+        let data = response.data.data;
+        this.products = data;
+      } catch {
+        this.products = [];
+      }
     },
     save() {
       if (this.exists(this.product, this.products)) {
