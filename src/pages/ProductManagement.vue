@@ -26,7 +26,7 @@
         class="p-button-success"
         label="Adicionar"
         :disabled="hasProduct"
-        @click="save"
+        @click="requestPostProduct"
       />
     </div>
 
@@ -63,7 +63,7 @@
 <script>
 
 import ProductTable from '../components/ProductTable.vue';
-import { getAllProducts } from '../services/productService.js';
+import { getAllProducts, postProduct } from '../services/productService.js';
 
 export default {
   name: 'ProductManagement',
@@ -101,12 +101,9 @@ export default {
     notification(severity, detail) {
       this.$toast.add({ severity: severity, summary: '', detail: detail, life: 3000 });
     },
-    generateID(list = []) {
-      let id = 0;
-      if (list || list.length > 0) {
-        list.forEach(content => id = content.id);
-      }
-      return id + 1;
+    clearInput() {
+      this.product.name = "";
+      this.product.description = "";
     },
     async requestGetAllProducts() {
       try {
@@ -117,19 +114,21 @@ export default {
         this.products = [];
       }
     },
-    save() {
-      if (this.exists(this.product, this.products)) {
-        this.notification('warn', `The product ${this.toUpperCaseFirstLetter(this.product.name)} is already registered`);
-      } else {
-        this.products.push({
-          id: this.generateID(this.products),
-          name: this.toUpperCaseFirstLetter(this.product.name),
-          description: this.product.description
-        });
+    async requestPostProduct() {
+      try {
+        const response = await postProduct(this.product);
+        let data = response.data.data;
+        this.product.id = data.id;
+        this.product.name = data.name;
+        this.product.description = data.description;
+
         this.notification('success', `${this.toUpperCaseFirstLetter(this.product.name)} registered`);
+        this.requestGetAllProducts();
+        this.clearInput();
+      } catch {
+        this.notification('warn', `The product ${this.toUpperCaseFirstLetter(this.product.name)} has not been registered`);
       }
-      this.product.name = "";
-      this.product.description = "";
+
     },
     editProduct(event, product) {
       this.modifiedProduct = { ...product };
