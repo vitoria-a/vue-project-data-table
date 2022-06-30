@@ -116,12 +116,7 @@ export default {
     },
     async requestPostProduct() {
       try {
-        const response = await postProduct(this.product);
-        let data = response.data.data;
-        this.product.id = data.id;
-        this.product.name = data.name;
-        this.product.description = data.description;
-
+        await postProduct(this.product);
         this.notification('success', `${this.product.name} registered`);
         this.requestGetAllProducts();
         this.clearInput();
@@ -132,7 +127,7 @@ export default {
     },
     async requestPutProduct(productId, product) {
       try {
-        const response = await putProduct(productId, product);
+        await putProduct(productId, product);
         let data = response.data.data;
         product.name = data.name;
         product.description = data.description;
@@ -157,21 +152,21 @@ export default {
         }
       });
     },
-    /* deleteProduct(event, product) {
+    deleteProduct(event, product) {
       this.$confirm.require({
         group: "deleteProduct",
         target: event.currentTarget,
-        titulo: `Do you really want to delete ${this.toUpperCaseFirstLetter(product.name)}?`,
+        titulo: `Do you really want to delete ${product.name}?`,
         accept: () => {
           let index = this.products.indexOf(product);
           this.products.splice(index, 1);
-          this.notification('success', `${this.toUpperCaseFirstLetter(product.name)} deleted`);
+          this.notification('success', `${product.name} deleted`);
         },
         reject: () => {
-          this.notification('info', `The product ${this.toUpperCaseFirstLetter(product.name)} has not been deleted`);
+          this.notification('info', `The product ${product.name} has not been deleted`);
         }
       });
-    }, */
+    },
   }
 }
 </script>
