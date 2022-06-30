@@ -56,14 +56,19 @@
 
     <Toast />
 
-    <ProductTable :products="products" :deleteProduct="deleteProduct" :editProduct="editProduct"/>
+    <ProductTable :products="products" :deleteProduct="deleteProductId" :editProduct="editProduct"/>
   </div>
 </template>
 
 <script>
 
 import ProductTable from '../components/ProductTable.vue';
-import { getAllProducts, postProduct, putProduct } from '../services/productService.js';
+import {
+  getAllProducts,
+  postProduct,
+  putProduct,
+  deleteProduct
+} from '../services/productService.js';
 
 export default {
   name: 'ProductManagement',
@@ -123,15 +128,10 @@ export default {
       } catch (error) {
         this.notification('info', `${error.response.data.errors}`);
       }
-
     },
     async requestPutProduct(productId, product) {
       try {
         await putProduct(productId, product);
-        let data = response.data.data;
-        product.name = data.name;
-        product.description = data.description;
-
         this.notification('success', `${product.name} updated`);
         this.requestGetAllProducts();
       } catch (error) {
@@ -152,15 +152,22 @@ export default {
         }
       });
     },
-    deleteProduct(event, product) {
+    async requestDeleteProduct(product) {
+      try {
+        await deleteProduct(product.id);
+        this.notification('success', `${product.name} deleted`);
+        this.requestGetAllProducts();
+      } catch (error) {
+        this.notification('info', `${error.response.data.errors}`);
+      }
+    },
+    deleteProductId(event, product) {
       this.$confirm.require({
         group: "deleteProduct",
         target: event.currentTarget,
         titulo: `Do you really want to delete ${product.name}?`,
         accept: () => {
-          let index = this.products.indexOf(product);
-          this.products.splice(index, 1);
-          this.notification('success', `${product.name} deleted`);
+          this.requestDeleteProduct(product);
         },
         reject: () => {
           this.notification('info', `The product ${product.name} has not been deleted`);
