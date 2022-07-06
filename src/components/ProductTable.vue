@@ -40,6 +40,21 @@
           />
         </template>
       </Column>
+       <Column field="price" header="Price" :sortable="true">
+        <template #body="{ data }">
+          {{ data.price }}
+        </template>
+        <template #filter="{ filterModel }">
+          <InputNumber
+            class="p-column-filter"
+            placeholder="Search by product price"
+            type="text"
+            v-model="filterModel.value"
+            :minFractionDigits="2"
+            :maxFractionDigits="2"
+          />
+        </template>
+      </Column>
       <Column  field="description" header="Description" :sortable="true">
         <template #body="{ data }">
           {{ data.description }}
@@ -62,7 +77,7 @@
           <Button
             class="p-button p-button-danger"
             icon="pi pi-trash"
-            v-show="status"
+            v-show="productActive"
             @click="deleteProduct($event, slotProps.data)"
           />
           <Button
@@ -104,7 +119,7 @@ export default {
         return 'Default function'
       }
     },
-    status: {
+    productActive: {
       type: Boolean,
       default: false
     }
@@ -122,6 +137,7 @@ export default {
       this.filters = {
         'id': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
         'name': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }] },
+        'price': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
         'description': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] }
       }
     },
