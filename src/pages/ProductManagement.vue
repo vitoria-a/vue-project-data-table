@@ -12,7 +12,18 @@
           v-tooltip.bottom="'Enter the name'" 
         />
       </div>
-
+      <div class="p-inputgroup">
+        <span class="p-inputgroup-addon">
+          $
+        </span>
+        <InputNumber
+          placeholder="Enter the product price"
+          v-model="product.price"
+          v-tooltip.bottom="'Enter the price'"
+          :minFractionDigits="2"
+          :maxFractionDigits="2"
+        />
+      </div>
       <div class="p-inputgroup">
         <span class="p-inputgroup-addon">
           <i class="pi pi-info-circle"></i>
@@ -36,7 +47,7 @@
     <div class="options">
       <div class="p-inputgroup">
         <InputText placeholder="Search by product ID" v-model.trim="product.id" v-tooltip.bottom="'Enter the product ID'" />
-        <Button icon="pi pi-search" class="p-button-warning" @click="requestSearchProductId(product.id)"/>
+        <Button icon="pi pi-search" class="p-button-warning" @click="requestGetProductId(product.id)"/>
       </div>
       <div class="button">
         <Button
@@ -70,6 +81,14 @@
               v-model="modifiedProduct.description"
             />
           </p>
+          <p> Price:
+            <InputNumber
+              placeholder="Product Price"
+              v-model="modifiedProduct.price"
+              :minFractionDigits="2"
+              :maxFractionDigits="2"
+            />
+          </p>
         </div>
       </template>
     </ConfirmPopup>
@@ -95,7 +114,7 @@
       :deleteProduct="deleteProductId"
       :editProduct="editProductId"
       :moreOptions="moreOptions"
-      :status="productsActive"
+      :productActive="productActive"
     />
   </div>
 </template>
@@ -123,15 +142,17 @@ export default {
       modifiedProduct: {
         id: null,
         name: "",
-        description: ""
+        description: "",
+        price: null
       },
       product: {
         id: null,
         name: "",
-        description: ""
+        description: "",
+        price: null
       },
       products: [],
-      productsActive: false,
+      productActive: false,
     };
   },
   computed: {
@@ -143,7 +164,7 @@ export default {
       return exists;
     },
     status() {
-      return this.productsActive ? "active" : "inactive";
+      return this.productActive ? "active" : "inactive";
     }
   },
   async mounted() {
@@ -169,6 +190,7 @@ export default {
         this.requestGetAllProducts(true);
         this.product.name = "";
         this.product.description = "";
+        this.product.price = "";
       } catch (error) {
         this.notification('error', `${error.response.data.errors}`);
       }
@@ -191,13 +213,14 @@ export default {
         this.notification('error', `${error.response.data.errors}`);
       }
     },
-    async requestSearchProductId(productId) {
+    async requestGetProductId(productId) {
       try {
         const response = await getProductId(productId);
         let data = response.data.data;
-        let searchProductId = [];
-        searchProductId.push(data);
-        this.products = searchProductId;
+        let searchProduct = [];
+        searchProduct.push(data);
+        this.products = searchProduct;
+        this.product.id = "";     
       } catch (error) {
         this.notification('error', `${error.response.data.errors}`);
       }
@@ -266,14 +289,12 @@ export default {
       });
     },
     activeProducts() {
-      this.productsActive = false;
+      this.productActive = false;
       this.requestGetAllProducts(true);
-      this.product.id = "";
     },
     inactiveProducts() {
-      this.productsActive = true;
+      this.productActive = true;
       this.requestGetAllProducts(false);
-      this.product.id = "";
     } 
   }
 }
