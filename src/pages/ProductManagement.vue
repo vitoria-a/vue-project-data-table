@@ -1,51 +1,78 @@
 <template>
   <div class="product-management">
     <h3>Product Table</h3>
-    <div class="p-inputgroup">
-      <span class="p-inputgroup-addon">
-        <i class="pi pi-box"></i>
-      </span>
-      <InputText
-        placeholder="Enter the product name"
-        v-model.trim="product.name"
-      />
-    </div>
+    <div class="header">
+      <div class="p-inputgroup">
+        <span class="p-inputgroup-addon">
+          <i class="pi pi-shopping-cart"></i>
+        </span>
+        <InputText
+          placeholder="Enter the product name"
+          v-model.trim="product.name"
+          v-tooltip.bottom="'Enter the name'" 
+        />
+      </div>
 
-    <div class="p-inputgroup">
-      <span class="p-inputgroup-addon">
-        <i class="pi pi-book"></i>
-      </span>
-      <InputText
-        placeholder="Enter the product description"
-        v-model="product.description"
-      />
-    </div>
+      <div class="p-inputgroup">
+        <span class="p-inputgroup-addon">
+          <i class="pi pi-info-circle"></i>
+        </span>
+        <InputText
+          placeholder="Enter the product description"
+          v-model="product.description"
+          v-tooltip.bottom="'Enter the description'" 
+        />
+      </div>
 
-    <div class="button">
-      <Button
-        class="p-button-success"
-        label="Adicionar"
-        :disabled="hasProduct"
-        @click="requestPostProduct"
-      />
+      <div class="button">
+        <Button
+          class="p-button-success"
+          label="Adicionar"
+          :disabled="hasProduct"
+          @click="requestPostProduct"
+        />
+      </div>
+    </div>
+    <div class="options">
+      <div class="p-inputgroup">
+        <InputText placeholder="Search by product ID" v-model.trim="product.id" v-tooltip.bottom="'Enter the product ID'" />
+        <Button icon="pi pi-search" class="p-button-warning" @click="requestSearchProductId(product.id)"/>
+      </div>
+      <div class="button">
+        <Button
+          class="p-button-warning"
+          label="List Active Products"
+          @click="activeProducts"
+        />
+      </div>
+      <div class="button">
+        <Button
+          class="p-button-warning"
+          label="List Inactive Products"
+          @click="inactiveProducts"
+        />
+      </div>
     </div>
 
     <ConfirmPopup group="editProduct">
       <template #message="slotProps">
         <div class="pop-up-edit">
           <p>{{ slotProps.message.titulo }}</p>
-          <InputText
-            placeholder="Product Name"
-            v-model="modifiedProduct.name"
-          />
-          <InputText
-            placeholder="Product Price"
-            v-model="modifiedProduct.description"
-          />
+          <p> Name:
+            <InputText
+              placeholder="Product Name"
+              v-model="modifiedProduct.name"
+            />
+          </p>
+          <p> Description:
+            <InputText
+              placeholder="Product Description"
+              v-model="modifiedProduct.description"
+            />
+          </p>
         </div>
       </template>
     </ConfirmPopup>
-
     <ConfirmPopup group="deleteProduct">
       <template #message="slotProps">
         <div class="pop-up-delete">
@@ -53,10 +80,23 @@
         </div>
       </template>
     </ConfirmPopup>
+    <ConfirmPopup group="moreOptions">
+      <template #message="slotProps">
+        <div class="pop-up-more-options">
+          <p>{{ slotProps.message.titulo }}</p>
+        </div>
+      </template>
+    </ConfirmPopup>
 
     <Toast />
 
-    <ProductTable :products="products" :deleteProduct="deleteProductId" :editProduct="editProduct"/>
+    <ProductTable
+      :products="products"
+      :deleteProduct="deleteProductId"
+      :editProduct="editProductId"
+      :moreOptions="moreOptions"
+      :status="productsActive"
+    />
   </div>
 </template>
 
@@ -67,7 +107,10 @@ import {
   getAllProducts,
   postProduct,
   putProduct,
-  deleteProduct
+  deleteProduct,
+  getProductId,
+  patchInactiveProductId,
+  patchActiveProductId
 } from '../services/productService.js';
 
 export default {
@@ -87,7 +130,8 @@ export default {
         name: "",
         description: ""
       },
-      products: []
+      products: [],
+      productsActive: false,
     };
   },
   computed: {
@@ -97,22 +141,21 @@ export default {
         exists = false;
       }
       return exists;
+    },
+    status() {
+      return this.productsActive ? "active" : "inactive";
     }
   },
   async mounted() {
-    await this.requestGetAllProducts();
+    await this.requestGetAllProducts(true);
   },
   methods: {
     notification(severity, detail) {
       this.$toast.add({ severity: severity, summary: '', detail: detail, life: 3000 });
     },
-    clearInput() {
-      this.product.name = "";
-      this.product.description = "";
-    },
-    async requestGetAllProducts() {
+    async requestGetAllProducts(isActive) {
       try {
-        const response = await getAllProducts();
+        const response = await getAllProducts(isActive);
         let data = response.data.data;
         this.products = data;
       } catch {
@@ -123,43 +166,71 @@ export default {
       try {
         await postProduct(this.product);
         this.notification('success', `${this.product.name} registered`);
-        this.requestGetAllProducts();
-        this.clearInput();
+        this.requestGetAllProducts(true);
+        this.product.name = "";
+        this.product.description = "";
       } catch (error) {
-        this.notification('info', `${error.response.data.errors}`);
+        this.notification('error', `${error.response.data.errors}`);
       }
     },
     async requestPutProduct(productId, product) {
       try {
         await putProduct(productId, product);
         this.notification('success', `${product.name} updated`);
-        this.requestGetAllProducts();
+        this.requestGetAllProducts(true);
       } catch (error) {
-        this.notification('info', `${error.response.data.errors}`);
+        this.notification('error', `${error.response.data.errors}`);
       }
     },
-    editProduct(event, product) {
+    async requestDeleteProduct(product) {
+      try {
+        await deleteProduct(product.id);
+        this.notification('success', `${product.name} deleted`);
+        this.requestGetAllProducts(false);
+      } catch (error) {
+        this.notification('error', `${error.response.data.errors}`);
+      }
+    },
+    async requestSearchProductId(productId) {
+      try {
+        const response = await getProductId(productId);
+        let data = response.data.data;
+        let searchProductId = [];
+        searchProductId.push(data);
+        this.products = searchProductId;
+      } catch (error) {
+        this.notification('error', `${error.response.data.errors}`);
+      }
+    },
+    async requestPatchInactiveProductId(productId) {
+      try {
+        await patchInactiveProductId(productId);
+        this.requestGetAllProducts(true);
+      } catch (error) {
+        this.notification('error', `${error.response.data.errors}`);
+      }
+    },
+    async requestPatchActiveProductId(productId) {
+      try {
+        await patchActiveProductId(productId);
+        this.requestGetAllProducts(false);
+      } catch (error) {
+        this.notification('error', `${error.response.data.errors}`);
+      }
+    },
+    editProductId(event, product) {
       this.modifiedProduct = { ...product };
       this.$confirm.require({
         group: "editProduct",
         target: event.currentTarget,
         titulo: "Do you really want to edit?",
         accept: () => {
-          this.requestPutProduct(this.modifiedProduct.id, this.modifiedProduct);
+            this.requestPutProduct(this.modifiedProduct.id, this.modifiedProduct);
         },
         reject: () => {
           this.notification('info', `The product ${product.name} has not been updated`);
         }
       });
-    },
-    async requestDeleteProduct(product) {
-      try {
-        await deleteProduct(product.id);
-        this.notification('success', `${product.name} deleted`);
-        this.requestGetAllProducts();
-      } catch (error) {
-        this.notification('info', `${error.response.data.errors}`);
-      }
     },
     deleteProductId(event, product) {
       this.$confirm.require({
@@ -174,6 +245,36 @@ export default {
         }
       });
     },
+    moreOptions(event, product) {
+      this.$confirm.require({
+        group: "moreOptions",
+        target: event.currentTarget,
+        titulo: `Do you want to ${this.status} the product?`,
+        accept: () => {
+          if(this.status === 'inactive') {
+            this.requestPatchInactiveProductId(product.id);
+            this.notification('success', `${product.name} inactivated`);
+          }
+          if(this.status === 'active') {
+            this.requestPatchActiveProductId(product.id);
+            this.notification('success', `${product.name} activated`);
+          }
+        },
+        reject: () => {
+          this.notification('info', `No changes have been made`);
+        }
+      });
+    },
+    activeProducts() {
+      this.productsActive = false;
+      this.requestGetAllProducts(true);
+      this.product.id = "";
+    },
+    inactiveProducts() {
+      this.productsActive = true;
+      this.requestGetAllProducts(false);
+      this.product.id = "";
+    } 
   }
 }
 </script>
