@@ -15,6 +15,8 @@ import ConfirmationService from 'primevue/confirmationservice';
 import ConfirmPopup from 'primevue/confirmpopup';
 import ToastService from 'primevue/toastservice';
 import Toast from 'primevue/toast';
+import Tooltip from 'primevue/tooltip';
+
 
 const app = createApp(App);
 app.use(PrimeVue);
@@ -28,6 +30,8 @@ app.component('DataTable', DataTable);
 app.component('Column', Column);
 app.component('ConfirmPopup', ConfirmPopup);
 app.component('Toast', Toast);
+
+app.directive('tooltip', Tooltip);
 
 app.mount('#app');
 

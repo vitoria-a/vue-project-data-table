@@ -40,19 +40,15 @@
           />
         </template>
       </Column>
-      <Column dataType="numeric" field="price" header="Price" :sortable="true">
+      <Column  field="description" header="Description" :sortable="true">
         <template #body="{ data }">
-          {{ formatCurrencyType(data.price) }}
+          {{ data.description }}
         </template>
         <template #filter="{ filterModel }">
-          <InputNumber
-            currency="BRL"
-            locale="pt-BR"
-            mode="currency"
-            placeholder="Search by product price"
+          <InputText
+            placeholder="Search by product description"
+            type="text"
             v-model="filterModel.value"
-            :maxFractionDigits="2"
-            :minFractionDigits="2"
           />
         </template>
       </Column>
@@ -66,8 +62,14 @@
           <Button
             class="p-button p-button-danger"
             icon="pi pi-trash"
+            v-show="status"
             @click="deleteProduct($event, slotProps.data)"
           />
+          <Button
+            class="p-button"
+            icon="pi pi-ellipsis-v"
+            @click="moreOptions($event, slotProps.data)"
+          />          
         </template>
       </Column>
     </DataTable>
@@ -89,6 +91,22 @@ export default {
       default() {
         return 'Default function'
       }
+    },
+    editProduct: {
+      type: Function,
+      default() {
+        return 'Default function'
+      }
+    },
+    moreOptions: {
+      type: Function,
+      default() {
+        return 'Default function'
+      }
+    },
+    status: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -104,14 +122,11 @@ export default {
       this.filters = {
         'id': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
         'name': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.CONTAINS }] },
-        'price': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] }
+        'description': { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] }
       }
     },
     notification(severity, detail) {
       this.$toast.add({ severity: severity, summary: '', detail: detail, life: 3000 });
-    },
-    formatCurrencyType(price) {
-      return price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
     },
   },
 };
