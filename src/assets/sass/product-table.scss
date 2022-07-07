@@ -1,7 +1,10 @@
 .product-table {
-
+    
+    .actions {
+        display: flex;
+        justify-content: center;
+    }
     .p-button {
         margin-right: 0.5rem;
     }
-}    
-    
+}
