@@ -289,7 +289,7 @@ export default {
         accept: () => {
           if (this.status === 'inactive') {
             this.requestPatchInactiveProductId(product.id);
-            this.notification('success', `${product.name} inactivatsed`);
+            this.notification('success', `${product.name} inactivated`);
           } else {
             this.requestPatchActiveProductId(product.id);
             this.notification('success', `${product.name} activated`);
