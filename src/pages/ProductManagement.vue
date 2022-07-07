@@ -287,11 +287,10 @@ export default {
         target: event.currentTarget,
         titulo: `Do you want to ${this.status} the product?`,
         accept: () => {
-          if(this.status === 'inactive') {
+          if (this.status === 'inactive') {
             this.requestPatchInactiveProductId(product.id);
-            this.notification('success', `${product.name} inactivated`);
-          }
-          if(this.status === 'active') {
+            this.notification('success', `${product.name} inactivatsed`);
+          } else {
             this.requestPatchActiveProductId(product.id);
             this.notification('success', `${product.name} activated`);
           }
