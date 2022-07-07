@@ -288,7 +288,6 @@ export default {
         titulo: `Do you want to ${this.status} the product?`,
         accept: () => {
           if(this.status === 'inactive') {
-            this.productActive = true;
             this.requestPatchInactiveProductId(product.id);
             this.notification('success', `${product.name} inactivated`);
           }
