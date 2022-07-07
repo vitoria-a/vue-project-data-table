@@ -8,7 +8,9 @@
       removableSort
       responsiveLayout="scroll"
       showGridlines
+      scrollHeight="200px"
       v-model:filters="filters"
+      :scrollable="true"
       :paginator="true"
       :rows="10"
       :rowsPerPageOptions="[5, 10, 25]"
@@ -27,7 +29,7 @@
           />
         </template>
       </Column>
-      <Column field="name" header="Product" :sortable="true">
+      <Column field="name" header="Name" :sortable="true">
         <template #body="{ data }">
           {{ data.name }}
         </template>
@@ -67,7 +69,7 @@
           />
         </template>
       </Column>
-      <Column header="Actions">
+      <Column header="Actions" class="actions">
         <template #body="slotProps">
           <Button
             class="p-button p-button-success"
@@ -84,7 +86,7 @@
             class="p-button"
             icon="pi pi-ellipsis-v"
             @click="moreOptions($event, slotProps.data)"
-          />          
+          /> 
         </template>
       </Column>
     </DataTable>
