@@ -79,14 +79,9 @@
           <Button
             class="p-button p-button-danger"
             icon="pi pi-trash"
-            v-show="productActive"
+            v-show="active"
             @click="deleteProduct($event, slotProps.data)"
           />
-          <Button
-            class="p-button"
-            icon="pi pi-ellipsis-v"
-            @click="moreOptions($event, slotProps.data)"
-          /> 
         </template>
       </Column>
     </DataTable>
@@ -114,16 +109,6 @@ export default {
       default() {
         return 'Default function'
       }
-    },
-    moreOptions: {
-      type: Function,
-      default() {
-        return 'Default function'
-      }
-    },
-    productActive: {
-      type: Boolean,
-      default: false
     }
   },
   data() {
