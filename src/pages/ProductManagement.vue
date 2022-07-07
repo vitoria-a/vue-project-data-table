@@ -46,8 +46,17 @@
     </div>
     <div class="options">
       <div class="p-inputgroup">
-        <InputText placeholder="Search by product ID" v-model.trim="product.id" v-tooltip.bottom="'Enter the product ID'" />
-        <Button icon="pi pi-search" class="p-button-warning" @click="requestGetProductId(product.id)"/>
+        <InputText
+          placeholder="Search by product ID"
+          v-model.trim="product.id"
+          v-tooltip.bottom="'Enter the product ID'"
+        />
+        <Button
+          icon="pi pi-search"
+          class="p-button-warning"
+          :disabled="hasProductId"
+          @click="requestGetProductId(product.id)"
+        />
       </div>
       <div class="button">
         <Button
@@ -163,6 +172,10 @@ export default {
       }
       return exists;
     },
+    hasProductId() {
+      return this.product.id ? false : true;
+
+    },
     status() {
       return this.productActive ? "active" : "inactive";
     }
@@ -275,6 +288,7 @@ export default {
         titulo: `Do you want to ${this.status} the product?`,
         accept: () => {
           if(this.status === 'inactive') {
+            this.productActive = true;
             this.requestPatchInactiveProductId(product.id);
             this.notification('success', `${product.name} inactivated`);
           }
