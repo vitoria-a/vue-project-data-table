@@ -74,6 +74,11 @@
           />
         </template>
       </Column>
+      <Column  field="status" header="Status" >
+        <template #body="{ data }">
+            {{ this.status( data.isActive ) }}
+        </template>
+      </Column>
       <Column header="Actions" class="actions">
         <template #body="slotProps">
           <Button
@@ -161,6 +166,9 @@ export default {
     notification(severity, detail) {
       this.$toast.add({ severity: severity, summary: '', detail: detail, life: 3000 });
     },
+    status(status) {
+      return status ? 'Active' : 'Inactive';
+    }
   },
 };
 </script>
