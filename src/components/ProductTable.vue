@@ -18,8 +18,11 @@
     >
       <Column field="id" header="ID" :sortable="true">
         <template #body="{ data }">
-          <router-link tag="Button" :to="`/${data.id}/details`">
-            {{ data.id }}
+          <router-link
+            tag="Button"
+            v-tooltip.left="'Click here for more information'"
+            :to="`/${data.id}/details`">
+              {{ data.id }}
           </router-link>
         </template>
         <template #filter="{ filterModel }">
