@@ -184,12 +184,12 @@ export default {
     activeProducts() {
       this.active = true;
       this.$refs.productTable.active = false;
-      this.requestGetAllProducts(true);
+      this.requestGetAllProducts(this.active);
     },
     inactiveProducts() {
       this.active = false;
       this.$refs.productTable.active = true;
-      this.requestGetAllProducts(false);
+      this.requestGetAllProducts(this.active);
     },
     editProductId(event, product) {
       this.modifiedProduct = { ...product };
