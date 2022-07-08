@@ -18,7 +18,9 @@
     >
       <Column field="id" header="ID" :sortable="true">
         <template #body="{ data }">
-          {{ data.id }}
+          <router-link tag="Button" :to="`/${data.id}/details`">
+            {{ data.id }}
+          </router-link>
         </template>
         <template #filter="{ filterModel }">
           <InputText
@@ -137,6 +139,7 @@ export default {
   },
   data() {
     return {
+      active: false,
       filters: null
     }
   },
