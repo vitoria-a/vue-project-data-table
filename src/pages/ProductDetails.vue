@@ -42,19 +42,19 @@ export default {
     },
     computed: {
       status() {
-        return this.product.isActive ? 'Produto ativo' : 'Produto Inativo';
+        return this.product.isActive ? 'Product active' : 'Product inactive';
       }
     },
     methods: {
-    async requestGetProductId(productId) {
-      try {
-        const response = await getProductId(productId);
-        let data = response.data.data;
-        this.product = { ...data };  
-      } catch (error) {
-        this.notification('error', `${error.response.data.errors}`);
+      async requestGetProductId(productId) {
+        try {
+          const response = await getProductId(productId);
+          let data = response.data.data;
+          this.product = { ...data };  
+        } catch (error) {
+          this.notification('error', `${error.response.data.errors}`);
+        }
       }
-    },
     }
 }
 </script>
