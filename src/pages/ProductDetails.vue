@@ -1,6 +1,26 @@
 <template>
-  <h3> Details </h3>
-  <p> {{ product.name }}</p>
+<div class="product-details">
+  <h3> Product Details </h3>
+    <Card>
+      <template #header>
+        <div>
+          <router-link class="button-home" tag="Button" to="/">
+            <i class="pi pi-home"/>
+          </router-link>
+          > Product Details
+        </div>
+      </template>
+      <template #content>
+        <p> Product ID: <strong>{{ product.id }}</strong></p>
+        <p> Name: <strong>{{ product.name }}</strong></p>
+        <p> Price: <strong>{{ product.price }}</strong></p>
+        <p> Description: <strong>{{ product.description }}</strong></p>
+        <p> Status: <strong>{{ this.status }}</strong></p>
+        <p> Created Date: <strong>{{ product.createdDate }}</strong></p>
+        <p> Updated Date: <strong>{{ product.updatedDate }}</strong></p>
+      </template>  
+    </Card>
+  </div>
 </template>
 
 <script>
@@ -19,6 +39,11 @@ export default {
     },
     async mounted() {
         await this.requestGetProductId(this.id);
+    },
+    computed: {
+      status() {
+        return this.product.isActive ? 'Produto ativo' : 'Produto Inativo';
+      }
     },
     methods: {
     async requestGetProductId(productId) {

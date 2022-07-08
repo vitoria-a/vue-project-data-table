@@ -17,6 +17,7 @@ import ConfirmPopup from 'primevue/confirmpopup';
 import ToastService from 'primevue/toastservice';
 import Toast from 'primevue/toast';
 import Tooltip from 'primevue/tooltip';
+import Card from 'primevue/card';
 
 
 const app = createApp(App);
@@ -33,6 +34,7 @@ app.component('DataTable', DataTable);
 app.component('Column', Column);
 app.component('ConfirmPopup', ConfirmPopup);
 app.component('Toast', Toast);
+app.component('Card', Card);
 
 app.directive('tooltip', Tooltip);
 
