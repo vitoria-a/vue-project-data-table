@@ -11,7 +11,7 @@
         </div>
       </template>
       <template #content>
-        <p> Product ID: <strong>{{ product.id }}</strong></p>
+        <p> ID: <strong>{{ product.id }}</strong></p>
         <p> Name: <strong>{{ product.name }}</strong></p>
         <p> Price: <strong>{{ product.price }}</strong></p>
         <p> Description: <strong>{{ product.description }}</strong></p>
