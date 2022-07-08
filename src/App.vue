@@ -1,17 +1,13 @@
 <template>
   <div id="#app">
-    <ProductManagement />
+    <router-view />
   </div>
 </template>
 
 <script>
-import ProductManagement from "./pages/ProductManagement.vue";
 
 export default {
   name: 'App',
-  components: {
-    ProductManagement,
-  }
 }
 </script>
 
