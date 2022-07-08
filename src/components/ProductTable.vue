@@ -76,6 +76,18 @@
             icon="pi pi-pencil"
             @click="editProduct($event, slotProps.data)"
           />
+          <Button 
+            v-if="active"
+            class="p-button"
+            icon="pi pi-eye"
+            @click="activeProduct($event, slotProps.data)"
+          />
+          <Button 
+            v-else
+            class="p-button"
+            icon="pi pi-eye-slash"
+            @click="inactiveProduct($event, slotProps.data)"
+          /> 
           <Button
             class="p-button p-button-danger"
             icon="pi pi-trash"
@@ -105,6 +117,18 @@ export default {
       }
     },
     editProduct: {
+      type: Function,
+      default() {
+        return 'Default function'
+      }
+    },
+    activeProduct: {
+      type: Function,
+      default() {
+        return 'Default function'
+      }
+    },
+    inactiveProduct: {
       type: Function,
       default() {
         return 'Default function'
