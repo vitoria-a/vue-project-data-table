@@ -149,7 +149,8 @@ export default {
         id: null,
         name: "",
         description: "",
-        price: 0
+        price: 0,
+        isActive: true
       },
       products: []
     };
