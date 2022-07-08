@@ -99,7 +99,7 @@
     </ConfirmPopup>
     <ConfirmPopup group="status">
       <template #message="slotProps">
-        <div class="pop-up-more-options">
+        <div class="pop-up-status">
           <p>{{ slotProps.message.title }}</p>
         </div>
       </template>
