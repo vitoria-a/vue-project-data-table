@@ -127,7 +127,6 @@ import {
   postProduct,
   putProduct,
   deleteProduct,
-  getProductId,
   patchInactiveProductId,
   patchActiveProductId
 } from '../services/productService.js';
@@ -264,18 +263,6 @@ export default {
     async activeProduct(productId) {
       await this.requestPatchActiveProductId(productId);
       await this.requestGetAllProducts(this.active);
-    },
-    async requestGetProductId(productId) {
-      try {
-        const response = await getProductId(productId);
-        let data = response.data.data;
-        let searchProduct = [];
-        searchProduct.push(data);
-        this.products = searchProduct;
-        this.product.id = "";     
-      } catch (error) {
-        this.notification('error', `${error.response.data.errors}`);
-      }
     },
     async requestGetAllProducts(isActive) {
       try {
