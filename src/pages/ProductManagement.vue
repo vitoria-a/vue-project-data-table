@@ -48,14 +48,14 @@
         <Button
           class="p-button-warning"
           label="List Active Products"
-          @click="activeProducts"
+          @click="showActiveProducts"
         />
       </div>
       <div class="button">
         <Button
           class="p-button-warning"
           label="List Inactive Products"
-          @click="inactiveProducts"
+          @click="showInactiveProducts"
         />
       </div>
     </div>
@@ -181,12 +181,12 @@ export default {
         price: 0
       }
     },
-    activeProducts() {
+    showActiveProducts() {
       this.active = true;
       this.$refs.productTable.active = false;
       this.requestGetAllProducts(this.active);
     },
-    inactiveProducts() {
+    showInactiveProducts() {
       this.active = false;
       this.$refs.productTable.active = true;
       this.requestGetAllProducts(this.active);
