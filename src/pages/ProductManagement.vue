@@ -157,7 +157,7 @@ export default {
   },
   computed: {
     hasProduct() {
-      return (this.product.name && this.product.description) ? false : true;
+      return ((this.product.name && this.product.description) && this.product.price) ? false : true;
     },
     hasProductId() {
       return this.product.id ? false : true;
